@@ -66,6 +66,7 @@ router.route("/staff_info_by_id").post(function(req,res) {
 router.route("/staff_login").post(function(req,res) {		
 	console.log("Login endpoint request...");
 	pg.connect(connectionString, function(err, client, done) {
+		res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 		if(err) {
 			return console.error("Error: error fetching client from pool: ", err);
 		}	
@@ -90,9 +91,9 @@ router.route("/staff_login").post(function(req,res) {
 			});
 			queryResults.on("end", function() {
 				done();
-			if(results.length == 0) {
+			if(results.length == 0) {				
 				return res.json({ "valid":false,"error":"Invalid login information." });				
-			} else {				
+			} else {						
 				return res.json({ "valid":true,"results":results });			
 			}
 			});
