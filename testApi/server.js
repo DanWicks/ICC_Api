@@ -15,6 +15,11 @@ var connectionString = "postgres://redline_admin:password@localhost/icc_project"
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 var port = process.env.PORT || 8080;        // set our port
 
@@ -66,7 +71,6 @@ router.route("/staff_info_by_id").post(function(req,res) {
 router.route("/staff_login").post(function(req,res) {		
 	console.log("Login endpoint request...");
 	pg.connect(connectionString, function(err, client, done) {
-		res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 		if(err) {
 			return console.error("Error: error fetching client from pool: ", err);
 		}	
