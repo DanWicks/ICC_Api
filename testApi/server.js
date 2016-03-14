@@ -40,7 +40,7 @@ router.get("/", function(req, res) {
     res.json({ "message": "GET Request Proccessed" });
 });
 
-// Route for querying for staff information based on their ID
+// Staff information based on their ID
 router.route("/staff_info_by_id").post(function(req,res) {	
 	console.log("Staff info request...");
 	pg.connect(connectionString, function(err, client, done) {
@@ -73,7 +73,8 @@ router.route("/staff_info_by_id").post(function(req,res) {
 		}		
 	});
 });
-// more routes for our API will happen here
+// Login functionality that will test to ensure the ID and password are present and correct in the database 
+// Returns valid:false if the login info was incorrect
 router.route("/staff_login").post(function(req,res) {		
 	console.log("Login endpoint request...");
 	pg.connect(connectionString, function(err, client, done) {
@@ -113,7 +114,7 @@ router.route("/staff_login").post(function(req,res) {
 		}		
 	});
 });
-// more routes for our API will happen here
+// Get all of the scheduled buildings for a specific staff member on a specific day
 router.route("/staff_schedule_by_id").post(function(req,res) {	
 	console.log("Staff schedule request...");
 	pg.connect(connectionString, function(err, client, done) {
@@ -160,7 +161,7 @@ router.route("/staff_schedule_by_id").post(function(req,res) {
 		}		
 	});
 });
-// more routes for our API will happen here
+// Get all scheduled employees on a given date
 router.route("/schedule_by_date").post(function(req,res) {	
 	console.log("Schedule by date request...");
 	pg.connect(connectionString, function(err, client, done) {
@@ -236,7 +237,7 @@ router.route("/staff_availability_by_id").post(function(req,res) {
 		}		
 	});
 });
-// Staff availability by their ID
+// All staff available on a specific day
 router.route("/staff_availability_by_date").post(function(req,res) {	
 	console.log("Availability by date request...");
 	pg.connect(connectionString, function(err, client, done) {
