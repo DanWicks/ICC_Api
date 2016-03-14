@@ -41,7 +41,7 @@ router.get("/", function(req, res) {
     res.json({ "message": "GET Request Proccessed" });
 });
 
-// more routes for our API will happen here
+// Route for querying for staff information based on their ID
 router.route("/staff_info_by_id").post(function(req,res) {	
 	pg.connect(connectionString, function(err, client, done) {
 		if(err) {
@@ -108,6 +108,7 @@ router.route("/staff_login").post(function(req,res) {
 });
 // more routes for our API will happen here
 router.route("/staff_schedule_by_id").post(function(req,res) {	
+	console.log("Staff schedule request...");
 	pg.connect(connectionString, function(err, client, done) {
 		if(err) {
 			return console.error("Error: error fetching client from pool: ", err);
@@ -115,34 +116,140 @@ router.route("/staff_schedule_by_id").post(function(req,res) {
 		var data = {"staff_id":req.body.staff_id, "date":req.body.date};
 		var results = [];	
 		if(data.staff_id == null || data.staff_id == "") {
-			return res.json({ "valid":false, "error":"No staff_id was found." });			
+			return res.json({ "valid":false, "error":"No staff_id was sent in the request." });			
+		} else if(data.date == null || data.date == "") {
+			return res.json({ "valid":false, "error":"No date was sent in the request." });
 		} else {
 			var sqlString = "SELECT employee_schedule.schedule_date, employee_schedule.schedule_start, employee_schedule.schedule_end, " +
 									"client_locations.cl_address1, client_locations.cl_address2, client_locations.cl_city, " +
-									"client_contracts.con_requirements, speciality_equipment.sp_equip_id " +
+									"client_contracts.con_requirements, specialty_equipment.sp_equip_description " +
                   			"FROM employee_schedule " +
                   			"INNER JOIN schedule_locations " +
                   			"   ON schedule_locations.schedule_id=employee_schedule.schedule_id " +
                   			"INNER JOIN sites" +
-                  			"   ON sites.site_id=employee_schedule.site_id " +
+                  			"   ON sites.site_id=schedule_locations.site_id " +
                   			"INNER JOIN client_contracts" +
                   			"   ON sites.site_id=client_contracts.site_id " +
                   			"INNER JOIN client_locations" +
-                  			"   ON sites.site_id=client_locations.site_id " +
+                  			"   ON sites.site_location_id=client_locations.location_id " +
                   			"INNER JOIN required_equipment" +
                   			"   ON client_contracts.requirements_id=required_equipment.requirements_id " +
-                  			"INNER JOIN speciality_equipment" +
-                  			"   ON speciality_equipment.equipment_id=required_equipment.equipment_id " +
-                  			"WHERE employee_schedule.staff_id="+data.staff_id+" AND employee_schedule.date="+data.date+";";
+                  			"LEFT JOIN specialty_equipment" +
+                  			"   ON specialty_equipment.spec_equip_id=required_equipment.equipment_id " +
+                  			"WHERE employee_schedule.staff_id='"+data.staff_id+"' AND employee_schedule.schedule_date='"+data.date+"';";
 			var queryResults = client.query(sqlString);
 
 			queryResults.on("error", function(error) {
-				return res.json({ "valid":false,"error":error});
+				return res.json({ "valid":false,"error":error, "errorMessage":error.message});
 			});
 			queryResults.on("row", function(row) {
 				results.push(row);
 			});
-			queryResults.on("end", function() {
+			queryResults.on("end", function() {				
+				done();
+				return res.json({ "valid":true,"results":results });			
+			});
+		}		
+	});
+});
+// more routes for our API will happen here
+router.route("/schedule_by_date").post(function(req,res) {	
+	console.log("Schedule by date request...");
+	pg.connect(connectionString, function(err, client, done) {
+		if(err) {
+			return console.error("Error: error fetching client from pool: ", err);
+		}	
+		var data = {"date":req.body.date};
+		var results = [];	
+		if(data.date == null || data.date == "") {
+			return res.json({ "valid":false, "error":"No date sent in request." });			
+		} else {
+			var sqlString = "SELECT employee_schedule.schedule_date, employee_schedule.schedule_start, employee_schedule.schedule_end, " +
+									"client_locations.cl_address1, client_locations.cl_address2, client_locations.cl_city, " +
+									"client_contracts.con_requirements, specialty_equipment.sp_equip_description " +
+                  			"FROM employee_schedule " +
+                  			"INNER JOIN schedule_locations " +
+                  			"   ON schedule_locations.schedule_id=employee_schedule.schedule_id " +
+                  			"INNER JOIN sites" +
+                  			"   ON sites.site_id=schedule_locations.site_id " +
+                  			"INNER JOIN client_contracts" +
+                  			"   ON sites.site_id=client_contracts.site_id " +
+                  			"INNER JOIN client_locations" +
+                  			"   ON sites.site_location_id=client_locations.location_id " +
+                  			"INNER JOIN required_equipment" +
+                  			"   ON client_contracts.requirements_id=required_equipment.requirements_id " +
+                  			"LEFT JOIN specialty_equipment" +
+                  			"   ON specialty_equipment.spec_equip_id=required_equipment.equipment_id " +
+                  			"WHERE employee_schedule.schedule_date='"+data.date+"';";
+			var queryResults = client.query(sqlString);
+
+			queryResults.on("error", function(error) {
+				return res.json({ "valid":false,"error":error, "errorMessage":error.message});
+			});
+			queryResults.on("row", function(row) {
+				results.push(row);
+			});
+			queryResults.on("end", function() {				
+				done();
+				return res.json({ "valid":true,"results":results });			
+			});
+		}		
+	});
+});
+// Staff availability by their ID
+router.route("/staff_availability_by_id").post(function(req,res) {	
+	console.log("Availability by staff_id request...");
+	pg.connect(connectionString, function(err, client, done) {
+		if(err) {
+			return console.error("Error: error fetching client from pool: ", err);
+		}	
+		var data = {"staff_id":req.body.staff_id};
+		var results = [];	
+		if(data.staff_id == null || data.staff_id == "") {
+			return res.json({ "valid":false, "error":"No staff_id sent in request." });			
+		} else {
+			var sqlString = "SELECT *" +
+                  			"FROM staff_availability " +
+                  			"WHERE staff_availability.staff_id='"+data.staff_id+"';";
+			var queryResults = client.query(sqlString);
+
+			queryResults.on("error", function(error) {
+				return res.json({ "valid":false,"error":error, "errorMessage":error.message});
+			});
+			queryResults.on("row", function(row) {
+				results.push(row);
+			});
+			queryResults.on("end", function() {				
+				done();
+				return res.json({ "valid":true,"results":results });			
+			});
+		}		
+	});
+});
+// Staff availability by their ID
+router.route("/staff_availability_by_date").post(function(req,res) {	
+	console.log("Availability by date request...");
+	pg.connect(connectionString, function(err, client, done) {
+		if(err) {
+			return console.error("Error: error fetching client from pool: ", err);
+		}	
+		var data = {"staff_id":req.body.staff_id};
+		var results = [];	
+		if(data.staff_id == null || data.staff_id == "") {
+			return res.json({ "valid":false, "error":"No date sent in request." });			
+		} else {
+			var sqlString = "SELECT *" +
+                  			"FROM staff_availability " +
+                  			"WHERE staff_availability.sa_date_available='"+data.date+"';";
+			var queryResults = client.query(sqlString);
+
+			queryResults.on("error", function(error) {
+				return res.json({ "valid":false,"error":error, "errorMessage":error.message});
+			});
+			queryResults.on("row", function(row) {
+				results.push(row);
+			});
+			queryResults.on("end", function() {				
 				done();
 				return res.json({ "valid":true,"results":results });			
 			});
