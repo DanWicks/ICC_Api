@@ -31,8 +31,7 @@ var router = express.Router();// get an instance of the express Router
 router.use(function(req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
   	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    // do logging
-    console.log("Request received...");
+    // do logging    
     next(); // make sure we go to the next routes and don"t stop here
 });
 
@@ -43,6 +42,7 @@ router.get("/", function(req, res) {
 
 // Route for querying for staff information based on their ID
 router.route("/staff_info_by_id").post(function(req,res) {	
+	console.log("Staff info request...");
 	pg.connect(connectionString, function(err, client, done) {
 		if(err) {
 			return console.error("Error: error fetching client from pool: ", err);
@@ -57,12 +57,16 @@ router.route("/staff_info_by_id").post(function(req,res) {
 			var queryResults = client.query(sqlString);
 
 			queryResults.on("error", function(error) {
+				console.log("Error occured: ", error.message);
 				return res.json({ "valid":false,"error":error});
 			});
 			queryResults.on("row", function(row) {
 				results.push(row);
 			});
 			queryResults.on("end", function() {
+				for(var i = 0;i < results.length;i++) {
+					delete results[i].password;
+				}	
 				done();
 				return res.json({ "valid":true,"results":results });			
 			});
@@ -82,14 +86,14 @@ router.route("/staff_login").post(function(req,res) {
 			return res.json({ "valid":false, "error":"No staff_id was found." });			
 		} else if (data.password == null || data.password == "") {
 		    return res.json({ "valid":false, "error":"No password was found." });
-		} else {
-			console.log("Login Attempt: " + "ID: " + data.staff_id + " PASS: " + data.password);
+		} else {			
 			var sqlString = "SELECT * " +
                   	"FROM Staff " + 
                   	"WHERE staff_id='"+data.staff_id+"' AND staff_password='"+data.password+"';";
 			var queryResults = client.query(sqlString);
 
 			queryResults.on("error", function(error) {
+				console.log("Error occured: ", error.message);
 				return res.json({ "valid":false,"error":error.message});
 			});
 			queryResults.on("row", function(row) {
@@ -97,11 +101,14 @@ router.route("/staff_login").post(function(req,res) {
 			});
 			queryResults.on("end", function() {
 				done();
-			if(results.length == 0) {				
-				return res.json({ "valid":false,"error":"Invalid login information." });				
-			} else {						
-				return res.json({ "valid":true,"results":results });			
-			}
+				if(results.length == 0) {				
+					return res.json({ "valid":false,"error":"Invalid login information." });				
+				} else {				
+					for(var i = 0;i < results.length;i++) {
+						delete results[i].password;
+					}			
+					return res.json({ "valid":true,"results":results });			
+				}
 			});
 		}		
 	});
@@ -140,6 +147,7 @@ router.route("/staff_schedule_by_id").post(function(req,res) {
 			var queryResults = client.query(sqlString);
 
 			queryResults.on("error", function(error) {
+				console.log("Error occured: ", error.message);
 				return res.json({ "valid":false,"error":error, "errorMessage":error.message});
 			});
 			queryResults.on("row", function(row) {
@@ -184,6 +192,7 @@ router.route("/schedule_by_date").post(function(req,res) {
 			var queryResults = client.query(sqlString);
 
 			queryResults.on("error", function(error) {
+				console.log("Error occured: ", error.message);
 				return res.json({ "valid":false,"error":error, "errorMessage":error.message});
 			});
 			queryResults.on("row", function(row) {
@@ -214,6 +223,7 @@ router.route("/staff_availability_by_id").post(function(req,res) {
 			var queryResults = client.query(sqlString);
 
 			queryResults.on("error", function(error) {
+				console.log("Error occured: ", error.message);
 				return res.json({ "valid":false,"error":error, "errorMessage":error.message});
 			});
 			queryResults.on("row", function(row) {
@@ -244,12 +254,13 @@ router.route("/staff_availability_by_date").post(function(req,res) {
 			var queryResults = client.query(sqlString);
 
 			queryResults.on("error", function(error) {
+				console.log("Error occured: ", error.message);
 				return res.json({ "valid":false,"error":error, "errorMessage":error.message});
 			});
 			queryResults.on("row", function(row) {
 				results.push(row);
 			});
-			queryResults.on("end", function() {				
+			queryResults.on("end", function() {			
 				done();
 				return res.json({ "valid":true,"results":results });			
 			});
