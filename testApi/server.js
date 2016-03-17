@@ -8,7 +8,7 @@ var express          = require("express");        // call express
 var app              = express();                 // define our app using express
 var bodyParser       = require("body-parser");
 var pg 		         = require("pg");
-var connectionString = "postgres://redline_admin:password@localhost/icc_project";
+var connectionString = "postgres://redline_admin:redline_access@localhost/icc_project";
 //var validExpression  = /(\%27)|(\")|(\-\-)|(\%23)|(#)/ix;
 
 // configure app to use bodyParser()
