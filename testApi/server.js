@@ -8,7 +8,6 @@ var express          = require("express");        // call express
 var app              = express();                 // define our app using express
 var bodyParser       = require("body-parser");
 var pg 		         = require("pg");
-pg.defaults.ssl = true;
 var connectionString = proccess.env.DATABASE_URL; //"postgres://uwityljpwrsqju:OBnZlBE5jqpRFLUllAOfgpb8OA@postgres://uwityljpwrsqju:OBnZlBE5jqpRFLUllAOfgpb8OA@ec2-54-83-22-48.compute-1.amazonaws.com:5432/dcji1sldavs0ts";
 //var validExpression  = /(\%27)|(\")|(\-\-)|(\%23)|(#)/ix;
 
@@ -32,6 +31,7 @@ var router = express.Router();// get an instance of the express Router
 router.use(function(req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
   	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  	pg.defaults.ssl = true;
     // do logging    
     next(); // make sure we go to the next routes and don"t stop here
 });
