@@ -8,7 +8,8 @@ var express          = require("express");        // call express
 var app              = express();                 // define our app using express
 var bodyParser       = require("body-parser");
 var pg 		         = require("pg");
-var connectionString = "postgres://redline_admin:redline_access@localhost/icc_project";
+pg.defaults.ssl = true;
+var connectionString = proccess.env.DATABASE_URL; //"postgres://uwityljpwrsqju:OBnZlBE5jqpRFLUllAOfgpb8OA@postgres://uwityljpwrsqju:OBnZlBE5jqpRFLUllAOfgpb8OA@ec2-54-83-22-48.compute-1.amazonaws.com:5432/dcji1sldavs0ts";
 //var validExpression  = /(\%27)|(\")|(\-\-)|(\%23)|(#)/ix;
 
 // configure app to use bodyParser()
