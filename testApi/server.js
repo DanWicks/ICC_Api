@@ -129,8 +129,8 @@ router.route("/staff_schedule_by_id").post(function(req,res) {
 			return res.json({ "valid":false, "error":"No date was sent in the request." });
 		} else {
 			var sqlString = "SELECT employee_schedule.schedule_date, employee_schedule.schedule_start, employee_schedule.schedule_end, " +
-									"client_locations.cl_address1, client_locations.cl_address2, client_locations.cl_city, " +
-									"client_contracts.con_requirements, specialty_equipment.sp_equip_description " +
+									"client_locations.client_address1, client_locations.client_address2, client_locations.city_id, " +
+									"client_contracts.contract_requirements, specialty_equipment.specialty_equipment_description " +
                   			"FROM employee_schedule " +
                   			"INNER JOIN schedule_locations " +
                   			"   ON schedule_locations.schedule_id=employee_schedule.schedule_id " +
@@ -143,7 +143,7 @@ router.route("/staff_schedule_by_id").post(function(req,res) {
                   			"INNER JOIN required_equipment" +
                   			"   ON client_contracts.requirements_id=required_equipment.requirements_id " +
                   			"LEFT JOIN specialty_equipment" +
-                  			"   ON specialty_equipment.spec_equip_id=required_equipment.equipment_id " +
+                  			"   ON specialty_equipment.specialty_equipment_id=required_equipment.equipment_id " +
                   			"WHERE employee_schedule.staff_id='"+data.staff_id+"' AND employee_schedule.schedule_date='"+data.date+"';";
 			var queryResults = client.query(sqlString);
 
@@ -174,8 +174,8 @@ router.route("/schedule_by_date").post(function(req,res) {
 			return res.json({ "valid":false, "error":"No date sent in request." });			
 		} else {
 			var sqlString = "SELECT employee_schedule.schedule_date, employee_schedule.schedule_start, employee_schedule.schedule_end, " +
-									"client_locations.cl_address1, client_locations.cl_address2, client_locations.cl_city, " +
-									"client_contracts.con_requirements, specialty_equipment.sp_equip_description " +
+									"client_locations.client_address1, client_locations.client_address2, client_locations.city_id, " +
+									"client_contracts.contract_requirements, specialty_equipment.specialty_equipment_description " +
                   			"FROM employee_schedule " +
                   			"INNER JOIN schedule_locations " +
                   			"   ON schedule_locations.schedule_id=employee_schedule.schedule_id " +
@@ -188,7 +188,7 @@ router.route("/schedule_by_date").post(function(req,res) {
                   			"INNER JOIN required_equipment" +
                   			"   ON client_contracts.requirements_id=required_equipment.requirements_id " +
                   			"LEFT JOIN specialty_equipment" +
-                  			"   ON specialty_equipment.spec_equip_id=required_equipment.equipment_id " +
+                  			"   ON specialty_equipment.specialty_equipment_id=required_equipment.equipment_id " +
                   			"WHERE employee_schedule.schedule_date='"+data.date+"';";
 			var queryResults = client.query(sqlString);
 
