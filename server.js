@@ -148,7 +148,7 @@ router.route("/staff_schedule_by_id").post(function(req,res) {
                   			"   ON specialty_equipment.specialty_equipment_id=required_equipment.equipment_id " +
                   			"WHERE employee_schedule.staff_id='"+data.staff_id+"' AND employee_schedule.schedule_date='"+data.date+"';";
 			var queryResults = client.query(sqlString);
-
+			console.log(data.date, data.staff_id);
 			queryResults.on("error", function(error) {
 				console.log("Error occured: ", error.message);
 				return res.json({ "valid":false,"error":error, "errorMessage":error.message});
