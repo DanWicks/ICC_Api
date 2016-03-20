@@ -55,7 +55,7 @@ router.route("/staff_info_by_id").post(function(req,res) {
 			return res.json({ "valid":false, "error":"No staff_id was found." });
 		} else {
 			var sqlString = "SELECT * " +
-                  			"FROM Staff WHERE staff_id="+data.staff_id+";";                
+                  			"FROM Staff WHERE staff_id='"+data.staff_id+"';";                
 			var queryResults = client.query(sqlString);
 
 			queryResults.on("error", function(error) {
